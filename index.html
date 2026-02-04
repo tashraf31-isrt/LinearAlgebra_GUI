@@ -459,6 +459,14 @@
             font-weight: 700;
             grid-column: 2 / span 2;
             width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-op-wide:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -609,21 +617,28 @@
         <!-- Solver Tab -->
         <div id="solver" class="tab-content">
             <div class="panel" style="grid-column: 1 / span 2;">
-                <h2>System Solver (Ax = b)</h2>
-                <p style="margin-bottom: 20px; color: #666;">Solve systems of linear equations using RREF or Cramer's
-                    Rule.</p>
+                <h2>System Solver (Mx = b)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Solve systems using your loaded matrices as coefficients.
+                </p>
 
                 <div class="solver-grid">
                     <div>
                         <div class="input-group">
-                            <label>Coefficient Matrix (A):</label>
-                            <p style="font-size: 0.9em; color: #777;">Using current values from <strong>Matrix
-                                    A</strong> in the Calculator tab.</p>
+                            <label>Coefficient Matrix (M):</label>
+                            <select id="solverTarget" onchange="generateVectorBInput()" style="margin-bottom: 10px;">
+                                <option value="A">Matrix A</option>
+                                <option value="B">Matrix B</option>
+                            </select>
+                            <p id="solverInfo" style="font-size: 0.85em; color: #777;">Using current values from
+                                <strong>Matrix A</strong>.
+                            </p>
                         </div>
                         <div class="b-vector-input">
                             <label><strong>Constant Vector (b):</strong></label>
-                            <p style="font-size: 0.8em; margin-bottom: 10px;">Enter values for the results vector.</p>
-                            <div id="vectorBInput" class="matrix-input"></div>
+                            <p style="font-size: 0.8em; margin-bottom: 10px;">The size is automatically adjusted to the
+                                matrix rows.</p>
+                            <div id="vectorBInput" class="matrix-input"
+                                style="max-height: 200px; overflow-y: auto; padding-right: 5px;"></div>
                         </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center;">
@@ -717,7 +732,7 @@
 
         document.getElementById('rowsA').addEventListener('change', () => { generateMatrixInputA(); generateVectorBInput(); });
         document.getElementById('colsA').addEventListener('change', generateMatrixInputA);
-        document.getElementById('rowsB').addEventListener('change', generateMatrixInputB);
+        document.getElementById('rowsB').addEventListener('change', () => { generateMatrixInputB(); generateVectorBInput(); });
         document.getElementById('colsB').addEventListener('change', generateMatrixInputB);
 
         function switchTab(tabId) {
@@ -728,7 +743,12 @@
         }
 
         function generateVectorBInput() {
-            const rows = parseInt(document.getElementById('rowsA').value);
+            const target = document.getElementById('solverTarget').value;
+            const rowsInput = document.getElementById(`rows${target}`);
+            const rows = rowsInput ? parseInt(rowsInput.value) : 2;
+
+            document.getElementById('solverInfo').innerHTML = `Using current values from <strong>Matrix ${target}</strong>.`;
+
             const container = document.getElementById('vectorBInput');
             container.innerHTML = '';
 
@@ -738,25 +758,32 @@
                 input.type = 'number';
                 input.value = '0';
                 input.id = `vecB_${i}`;
+                input.className = 'matrix-input-field'; // Added for consistent styling
                 input.style.width = '100%';
                 input.style.marginBottom = '5px';
                 input.style.padding = '8px';
+                input.style.textAlign = 'center';
                 fragment.appendChild(input);
             }
             container.appendChild(fragment);
         }
 
         function solveSystem(op) {
-            loadMatrixA(true); // Get最新的 A
-            const rows = parseInt(document.getElementById('rowsA').value);
+            const target = document.getElementById('solverTarget').value;
+            if (target === 'A') loadMatrixA(true);
+            else loadMatrixB(true);
+
+            const rowsInput = document.getElementById(`rows${target}`);
+            const rows = rowsInput ? parseInt(rowsInput.value) : 2;
+
             const vecB = [];
             for (let i = 0; i < rows; i++) {
                 const val = parseFloat(document.getElementById(`vecB_${i}`).value);
                 vecB.push([isNaN(val) ? 0 : val]);
             }
-            matrixB = vecB; // Temporarily use matrixB slot for the vector B
+            matrixB = vecB; // Pass vector as matrixB
 
-            operation(op, 'A', 'solverResults');
+            operation(op, target, 'solverResults');
         }
 
         function generateMatrixInputA() {
