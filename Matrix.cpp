@@ -328,3 +328,43 @@ Matrix Matrix::fromCSV(const std::string &filename) {
 Matrix Matrix::operator-(const Matrix &other) const {
   return Matrix(data - other.data);
 }
+
+Matrix Matrix::solveCramer(const Matrix &b) const {
+  if (data.rows() != data.cols())
+    throw std::invalid_argument("Cramer's rule is only for square matrices.");
+  if (b.data.rows() != data.rows() || b.data.cols() != 1)
+    throw std::invalid_argument("Vector b must be n x 1.");
+
+  double detA = determinant();
+  if (std::abs(detA) < 1e-10)
+    throw std::runtime_error(
+        "Determinant is zero; Cramer's rule cannot be used.");
+
+  int n = (int)data.rows();
+  Eigen::MatrixXd x(n, 1);
+  for (int i = 0; i < n; ++i) {
+    Eigen::MatrixXd Ai = data;
+    Ai.col(i) = b.data;
+    x(i, 0) = Ai.determinant() / detA;
+  }
+  return Matrix(x);
+}
+
+Matrix Matrix::solveSystem(const Matrix &b) const {
+  if (b.data.rows() != data.rows() || b.data.cols() != 1)
+    throw std::invalid_argument("Vector b must have same number of rows as A.");
+
+  int r = (int)data.rows();
+  int c = (int)data.cols();
+  Eigen::MatrixXd aug(r, c + 1);
+  aug.block(0, 0, r, c) = data;
+  aug.col(c) = b.data.col(0);
+
+  Matrix augMat(aug);
+  augMat = augMat.rref();
+
+  // Extract results
+  // For a unique solution in square case, it's just the last column.
+  // We return the RREF result as it shows the solved system.
+  return augMat;
+}

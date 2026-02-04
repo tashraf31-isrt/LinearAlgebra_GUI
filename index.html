@@ -320,23 +320,93 @@
             text-align: center;
         }
 
+        /* Tabs Styling */
+        .tabs {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            grid-column: 1 / -1;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .tab-content.active {
+            display: grid;
+        }
+
+        /* Formula Styles */
+        .formula-card {
+            background: #f8faff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .formula-card h4 {
+            color: #764ba2;
+            margin-bottom: 8px;
+        }
+
+        .math-block {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-size: 1.2em;
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            margin: 10px 0;
+        }
+
+        /* Solver Styles */
+        .solver-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .b-vector-input {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border: 2px dashed #667eea;
+        }
+
         @media (max-width: 1200px) {
-            .container {
+            .tab-content {
                 grid-template-columns: 1fr 1fr;
             }
 
-            .operations-section {
-                grid-column: 1 / -1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
+            .solver-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
             }
         }
     </style>
@@ -349,221 +419,213 @@
             <p>Advanced Matrix Operations with GUI</p>
         </div>
 
-        <!-- Input Panel -->
-        <div class="panel input-section">
-            <h2>Matrix Input</h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('calculator')">🧮 Calculator</button>
+            <button class="tab-btn" onclick="switchTab('solver')">➗ Equation Solver</button>
+            <button class="tab-btn" onclick="switchTab('formulas')">📚 Formulas</button>
+        </div>
 
-            <div class="input-group">
-                <label>Input Mode:</label>
-                <select id="inputMode">
-                    <option value="manual">Manual Input</option>
-                    <option value="csv">CSV File</option>
-                </select>
+        <!-- Calculator Tab -->
+        <div id="calculator" class="tab-content active">
+            <!-- Input Panel -->
+            <div class="panel input-section">
+                <h2>Matrix Input</h2>
+
+                <div class="input-group">
+                    <label>Input Mode:</label>
+                    <select id="inputMode">
+                        <option value="manual">Manual Input</option>
+                        <option value="csv">CSV File</option>
+                    </select>
+                </div>
+
+                <div id="manualInput">
+                    <div class="input-group">
+                        <label>Matrix A Rows:</label>
+                        <input type="number" id="rowsA" min="1" max="20" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Matrix A Columns:</label>
+                        <input type="number" id="colsA" min="1" max="20" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Matrix A Values:</label>
+                        <div id="matrixAInput" class="matrix-input"></div>
+                    </div>
+                    <button class="btn-primary" onclick="loadMatrixA()">Load Matrix A</button>
+
+                    <div class="input-group">
+                        <label>Matrix B Rows:</label>
+                        <input type="number" id="rowsB" min="1" max="20" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Matrix B Columns:</label>
+                        <input type="number" id="colsB" min="1" max="20" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Matrix B Values:</label>
+                        <div id="matrixBInput" class="matrix-input"></div>
+                    </div>
+                    <button class="btn-primary" onclick="loadMatrixB()">Load Matrix B</button>
+                </div>
+
+                <div id="csvInput" style="display:none;">
+                    <div class="input-group">
+                        <label>Upload CSV for A:</label>
+                        <input type="file" id="csvFileA" accept=".csv">
+                        <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('A')">Upload &
+                            Load
+                            A</button>
+                    </div>
+                    <div class="input-group">
+                        <label>Upload CSV for B:</label>
+                        <input type="file" id="csvFileB" accept=".csv">
+                        <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('B')">Upload &
+                            Load
+                            B</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="manualInput">
-                <div class="input-group">
-                    <label>Matrix A Rows:</label>
-                    <input type="number" id="rowsA" min="1" max="20" value="2">
-                </div>
-                <div class="input-group">
-                    <label>Matrix A Columns:</label>
-                    <input type="number" id="colsA" min="1" max="20" value="2">
-                </div>
-                <div class="input-group">
-                    <label>Matrix A Values:</label>
-                    <div id="matrixAInput" class="matrix-input"></div>
-                </div>
-                <button class="btn-primary" onclick="loadMatrixA()">Load Matrix A</button>
+            <!-- Operations Panel -->
+            <div class="panel operations-section">
+                <h2>Operations</h2>
+                <div class="ops-table">
+                    <!-- Binary operations -->
+                    <div class="op-name">➕ Addition (A + B)</div>
+                    <div class="op-target"><button class="btn-op-wide" onclick="operation('addition')">Compute</button>
+                    </div>
+                    <div></div>
 
-                <div class="input-group">
-                    <label>Matrix B Rows:</label>
-                    <input type="number" id="rowsB" min="1" max="20" value="2">
+                    <div class="op-name">➖ Subtraction (A - B)</div>
+                    <div class="op-target"><button class="btn-op-wide"
+                            onclick="operation('subtraction')">Compute</button></div>
+                    <div></div>
+
+                    <div class="op-name">✖️ Multiplication (A * B)</div>
+                    <div class="op-target"><button class="btn-op-wide"
+                            onclick="operation('multiplication')">Compute</button></div>
+                    <div></div>
+
+                    <!-- Single-matrix operations -->
+                    <div class="op-name">🔄 Transpose</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('transpose','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('transpose','B')">B</button>
+                    </div>
+
+                    <div class="op-name">📊 RREF</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('rref','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('rref','B')">B</button></div>
+
+                    <div class="op-name">📌 Determinant</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('determinant','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('determinant','B')">B</button>
+                    </div>
+
+                    <div class="op-name">📍 Rank</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('rank','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('rank','B')">B</button></div>
+
+                    <div class="op-name">↩️ Inverse</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('inverse','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('inverse','B')">B</button>
+                    </div>
+
+                    <div class="op-name">🌊 Eigenvalues</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','B')">B</button>
+                    </div>
+
+                    <div class="op-name">🎲 SVD</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('svd','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('svd','B')">B</button></div>
                 </div>
-                <div class="input-group">
-                    <label>Matrix B Columns:</label>
-                    <input type="number" id="colsB" min="1" max="20" value="2">
-                </div>
-                <div class="input-group">
-                    <label>Matrix B Values:</label>
-                    <div id="matrixBInput" class="matrix-input"></div>
-                </div>
-                <button class="btn-primary" onclick="loadMatrixB()">Load Matrix B</button>
             </div>
 
-            <div id="csvInput" style="display:none;">
-                <div class="input-group">
-                    <label>Upload CSV for A:</label>
-                    <input type="file" id="csvFileA" accept=".csv">
-                    <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('A')">Upload & Load
-                        A</button>
+            <!-- Results Panel -->
+            <div class="panel results-section">
+                <h2>Results</h2>
+                <div id="resultsContainer">
+                    <p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>
                 </div>
-                <div class="input-group">
-                    <label>Upload CSV for B:</label>
-                    <input type="file" id="csvFileB" accept=".csv">
-                    <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('B')">Upload & Load
-                        B</button>
-                </div>
-                <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
-                    Format: Comma-separated values (e.g. 1,2,3)
-                </p>
             </div>
         </div>
 
-        <!-- Operations Panel -->
-        <div class="panel operations-section">
-            <h2>Operations</h2>
+        <!-- Solver Tab -->
+        <div id="solver" class="tab-content">
+            <div class="panel" style="grid-column: 1 / span 2;">
+                <h2>System Solver (Ax = b)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Solve systems of linear equations using RREF or Cramer's
+                    Rule.</p>
 
-            <style>
-                .ops-table {
-                    display: grid;
-                    grid-template-columns: 1fr 80px 80px;
-                    gap: 10px;
-                }
-
-                .ops-row {
-                    display: contents;
-                }
-
-                .op-name {
-                    padding: 12px 15px;
-                    background: #f6f7fb;
-                    border-radius: 6px;
-                    display: flex;
-                    align-items: center;
-                    color: #334;
-                    font-weight: 600;
-                }
-
-                .op-target {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .btn-target {
-                    padding: 8px 12px;
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 700;
-                }
-
-                .btn-target:active {
-                    transform: translateY(1px);
-                }
-
-                .btn-op-wide {
-                    padding: 10px 18px;
-                    background: #667eea;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 700;
-                    grid-column: 2 / span 2;
-                }
-            </style>
-
-            <div class="ops-table">
-                <!-- Binary operations (span both target columns) -->
-                <div class="op-name">➕ Addition (A + B)</div>
-                <div class="op-target"><button class="btn-op-wide" onclick="operation('addition')">Compute</button>
+                <div class="solver-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>Coefficient Matrix (A):</label>
+                            <p style="font-size: 0.9em; color: #777;">Using current values from <strong>Matrix
+                                    A</strong> in the Calculator tab.</p>
+                        </div>
+                        <div class="b-vector-input">
+                            <label><strong>Constant Vector (b):</strong></label>
+                            <p style="font-size: 0.8em; margin-bottom: 10px;">Enter values for the results vector.</p>
+                            <div id="vectorBInput" class="matrix-input"></div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center;">
+                        <button class="btn-operation" onclick="solveSystem('solve_system')">Solve by RREF
+                            (General)</button>
+                        <button class="btn-operation" style="background: #764ba2;"
+                            onclick="solveSystem('solve_cramer')">Solve by Cramer's Rule (Square Only)</button>
+                    </div>
                 </div>
-                <div></div>
-
-                <div class="op-name">➖ Subtraction (A - B)</div>
-                <div class="op-target"><button class="btn-op-wide" onclick="operation('subtraction')">Compute</button>
+            </div>
+            <div class="panel results-section">
+                <h2>Solver Result</h2>
+                <div id="solverResults">
+                    <p style="color: #999; text-align: center; padding: 40px 0;">Solution will appear here...</p>
                 </div>
-                <div></div>
-
-                <div class="op-name">✖️ Multiplication (A * B)</div>
-                <div class="op-target"><button class="btn-op-wide"
-                        onclick="operation('multiplication')">Compute</button></div>
-                <div></div>
-
-                <!-- Single-matrix operations (two targets A and B) -->
-                <div class="op-name">🔄 Transpose</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('transpose','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('transpose','B')">B</button></div>
-
-                <div class="op-name">📊 RREF</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('rref','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('rref','B')">B</button></div>
-
-                <div class="op-name">📈 REF</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('ref','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('ref','B')">B</button></div>
-
-                <div class="op-name">📌 Determinant</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('determinant','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('determinant','B')">B</button>
-                </div>
-
-                <div class="op-name">✏️ Trace</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('trace','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('trace','B')">B</button></div>
-
-                <div class="op-name">📍 Rank</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('rank','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('rank','B')">B</button></div>
-
-                <div class="op-name">↩️ Inverse</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('inverse','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('inverse','B')">B</button></div>
-
-                <div class="op-name">🔗 Linear Independence</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('independence','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('independence','B')">B</button>
-                </div>
-
-                <div class="op-name">🎯 Basis</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('basis','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('basis','B')">B</button></div>
-
-                <div class="op-name">🌊 Eigenvalues</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','B')">B</button>
-                </div>
-
-                <div class="op-name">🌈 Eigenvectors</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','B')">B</button>
-                </div>
-
-                <div class="op-name">⊥ Orthogonal/Orthonormal</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','B')">B</button></div>
-
-                <div class="op-name">🧮 Gram-Schmidt</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','B')">B</button>
-                </div>
-
-                <div class="op-name">🔷 Diagonalization</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','A')">A</button>
-                </div>
-                <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','B')">B</button>
-                </div>
-
-                <div class="op-name">🎲 SVD</div>
-                <div class="op-target"><button class="btn-target" onclick="operation('svd','A')">A</button></div>
-                <div class="op-target"><button class="btn-target" onclick="operation('svd','B')">B</button></div>
             </div>
         </div>
 
-        <!-- Results Panel -->
-        <div class="panel results-section">
-            <h2>Results</h2>
-            <div id="resultsContainer">
-                <p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>
+        <!-- Formulas Tab -->
+        <div id="formulas" class="tab-content" style="grid-template-columns: 1fr 1fr;">
+            <div class="panel">
+                <h2>Matrix Properties</h2>
+                <div class="formula-card">
+                    <h4>Determinant (det A)</h4>
+                    <p>A scalar value that can be computed from the elements of a square matrix. Identifies if a matrix
+                        is invertible.</p>
+                    <div class="math-block">det(A) ≠ 0 ⟺ Invertible</div>
+                </div>
+                <div class="formula-card">
+                    <h4>Inverse Matrix (A⁻¹)</h4>
+                    <p>If A is square and det(A) ≠ 0, there exists a matrix A⁻¹ such that:</p>
+                    <div class="math-block">A · A⁻¹ = I</div>
+                </div>
+                <div class="formula-card">
+                    <h4>Eigenvalues (λ)</h4>
+                    <p>Scalars that satisfy the characteristic equation:</p>
+                    <div class="math-block">det(A - λI) = 0</div>
+                </div>
+            </div>
+            <div class="panel">
+                <h2>Solving Systems</h2>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Cramer's Rule</h4>
+                    <p>For a square system Ax = b, the i-th component of x is:</p>
+                    <div class="math-block">xᵢ = det(Aᵢ) / det(A)</div>
+                    <small>Where Aᵢ is formed by replacing the i-th column of A with b.</small>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Reduced Row Echelon Form (RREF)</h4>
+                    <p>A systematic way to solve Ax = b by applying elementary row operations to the augmented matrix
+                        [A|b].</p>
+                    <div class="math-block">[A | b] ⟶ [I | x]</div>
+                </div>
             </div>
         </div>
 
@@ -587,10 +649,49 @@
             }
         });
 
-        document.getElementById('rowsA').addEventListener('change', generateMatrixInputA);
+        document.getElementById('rowsA').addEventListener('change', () => { generateMatrixInputA(); generateVectorBInput(); });
         document.getElementById('colsA').addEventListener('change', generateMatrixInputA);
         document.getElementById('rowsB').addEventListener('change', generateMatrixInputB);
         document.getElementById('colsB').addEventListener('change', generateMatrixInputB);
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function generateVectorBInput() {
+            const rows = parseInt(document.getElementById('rowsA').value);
+            const container = document.getElementById('vectorBInput');
+            container.innerHTML = '';
+
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < rows; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.value = '0';
+                input.id = `vecB_${i}`;
+                input.style.width = '100%';
+                input.style.marginBottom = '5px';
+                input.style.padding = '8px';
+                fragment.appendChild(input);
+            }
+            container.appendChild(fragment);
+        }
+
+        function solveSystem(op) {
+            loadMatrixA(true); // Get最新的 A
+            const rows = parseInt(document.getElementById('rowsA').value);
+            const vecB = [];
+            for (let i = 0; i < rows; i++) {
+                const val = parseFloat(document.getElementById(`vecB_${i}`).value);
+                vecB.push([isNaN(val) ? 0 : val]);
+            }
+            matrixB = vecB; // Temporarily use matrixB slot for the vector B
+
+            operation(op, 'A', 'solverResults');
+        }
 
         function generateMatrixInputA() {
             const rows = parseInt(document.getElementById('rowsA').value);
@@ -702,8 +803,8 @@
             statusBar.style.display = 'block';
         }
 
-        function showResult(title, content) {
-            const container = document.getElementById('resultsContainer');
+        function showResult(title, content, containerId = 'resultsContainer') {
+            const container = document.getElementById(containerId);
             const result = document.createElement('div');
             result.className = 'result-item';
 
@@ -818,17 +919,18 @@
             document.getElementById('resultsContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>';
         }
 
-        function operation(op, target) {
+        function operation(op, target, resultContainerId = 'resultsContainer') {
             // Auto-sync from UI before every operation
             loadMatrixA(true);
-            loadMatrixB(true);
+            if (resultContainerId === 'resultsContainer') loadMatrixB(true);
 
             if (!matrixA) {
                 showStatus('Please load Matrix A first', 'error');
                 return;
             }
 
-            clearResults();
+            const container = document.getElementById(resultContainerId);
+            container.innerHTML = '';
 
             // If target not explicitly provided, fall back to selector (legacy)
             if (!target) {
@@ -868,7 +970,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showResult(data.title, data.result);
+                        showResult(data.title, data.result, resultContainerId);
                         showStatus(data.message, 'success');
                     } else {
                         showStatus('Server Logic Error: ' + data.error, 'error');
@@ -945,8 +1047,9 @@
         // Initialize
         generateMatrixInputA();
         generateMatrixInputB();
-        loadMatrixA();
-        loadMatrixB();
+        generateVectorBInput();
+        loadMatrixA(true);
+        loadMatrixB(true);
 
         // Add target selector so user can choose A or B for single-matrix ops
         var targetContainer = document.createElement('div');

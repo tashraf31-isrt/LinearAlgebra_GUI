@@ -449,6 +449,15 @@ std::string handleOperation(const std::string &operation,
       auto [U, S, V] = M.svd();
       return createSuccessResponse(std::string("SVD (") + target + ")",
                                    matrixToJSON(S));
+    } else if (operation == "solve_system") {
+      // For solve, we use A as coefficients and B as constants
+      Matrix result = globalMatrixA.solveSystem(globalMatrixB);
+      return createSuccessResponse("System Solution (RREF Augmented)",
+                                   matrixToJSON(result));
+    } else if (operation == "solve_cramer") {
+      Matrix result = globalMatrixA.solveCramer(globalMatrixB);
+      return createSuccessResponse("Cramer's Rule Solution",
+                                   matrixToJSON(result));
     } else {
       return createErrorResponse("Unknown operation: " + operation);
     }
