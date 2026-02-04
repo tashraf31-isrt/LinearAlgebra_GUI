@@ -1,0 +1,25 @@
+# Compiled binaries
+*.exe
+*.o
+*.obj
+server
+server_old
+server_kill
+server_out.log
+server_err.log
+preproc.log
+
+# Large dependencies (Render should download/use its own or we copy it)
+# Note: In our current setup we are copying Eigen3 into the repo.
+# If you want to keep the repo small, exclude it and have Docker download it.
+# For now, we'll keep it so the build works exactly like yours.
+# Eigen3/
+
+# Test files
+test_100x100.csv
+test_payload.json
+test.json
+huge_matrix.csv
+
+# VS Code
+.vscode/

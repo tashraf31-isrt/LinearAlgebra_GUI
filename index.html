@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Algebra Toolkit - GUI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .input-section h2,
+        .operations-section h2,
+        .results-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-group button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-secondary:hover {
+            background: #653a87;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .operations-section {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .btn-operation {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-operation:hover {
+            background: #5568d3;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .results-section {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .result-item {
+            background: #f0f4ff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-item pre {
+            background: white;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+
+        /* Matrix Grid Display */
+        .matrix-result-grid {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 10px 0;
+        }
+
+        .matrix-bracket {
+            font-size: 3em;
+            font-weight: 100;
+            color: #667eea;
+            line-height: 1;
+        }
+
+        .matrix-cells {
+            display: grid;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .matrix-cell {
+            min-width: 50px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .matrix-cell:hover {
+            background: linear-gradient(135deg, #667eea30 0%, #764ba230 100%);
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .scalar-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .scalar-label {
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .boolean-result {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .boolean-true {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .boolean-false {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .list-result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .list-item {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #764ba2;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 600;
+        }
+
+        .status-bar {
+            grid-column: 1 / -1;
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .status-bar.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .status-bar.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .matrix-input {
+            display: grid;
+            gap: 10px;
+        }
+
+        .matrix-row {
+            display: grid;
+            gap: 5px;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        }
+
+        .matrix-row input {
+            padding: 8px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .operations-section {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📐 Linear Algebra Toolkit</h1>
+            <p>Advanced Matrix Operations with GUI</p>
+        </div>
+
+        <!-- Input Panel -->
+        <div class="panel input-section">
+            <h2>Matrix Input</h2>
+
+            <div class="input-group">
+                <label>Input Mode:</label>
+                <select id="inputMode">
+                    <option value="manual">Manual Input</option>
+                    <option value="csv">CSV File</option>
+                </select>
+            </div>
+
+            <div id="manualInput">
+                <div class="input-group">
+                    <label>Matrix A Rows:</label>
+                    <input type="number" id="rowsA" min="1" max="20" value="2">
+                </div>
+                <div class="input-group">
+                    <label>Matrix A Columns:</label>
+                    <input type="number" id="colsA" min="1" max="20" value="2">
+                </div>
+                <div class="input-group">
+                    <label>Matrix A Values:</label>
+                    <div id="matrixAInput" class="matrix-input"></div>
+                </div>
+                <button class="btn-primary" onclick="loadMatrixA()">Load Matrix A</button>
+
+                <div class="input-group">
+                    <label>Matrix B Rows:</label>
+                    <input type="number" id="rowsB" min="1" max="20" value="2">
+                </div>
+                <div class="input-group">
+                    <label>Matrix B Columns:</label>
+                    <input type="number" id="colsB" min="1" max="20" value="2">
+                </div>
+                <div class="input-group">
+                    <label>Matrix B Values:</label>
+                    <div id="matrixBInput" class="matrix-input"></div>
+                </div>
+                <button class="btn-primary" onclick="loadMatrixB()">Load Matrix B</button>
+            </div>
+
+            <div id="csvInput" style="display:none;">
+                <div class="input-group">
+                    <label>Upload CSV for A:</label>
+                    <input type="file" id="csvFileA" accept=".csv">
+                    <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('A')">Upload & Load
+                        A</button>
+                </div>
+                <div class="input-group">
+                    <label>Upload CSV for B:</label>
+                    <input type="file" id="csvFileB" accept=".csv">
+                    <button class="btn-primary" style="margin-top: 5px;" onclick="handleCSVUpload('B')">Upload & Load
+                        B</button>
+                </div>
+                <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                    Format: Comma-separated values (e.g. 1,2,3)
+                </p>
+            </div>
+        </div>
+
+        <!-- Operations Panel -->
+        <div class="panel operations-section">
+            <h2>Operations</h2>
+
+            <style>
+                .ops-table {
+                    display: grid;
+                    grid-template-columns: 1fr 80px 80px;
+                    gap: 10px;
+                }
+
+                .ops-row {
+                    display: contents;
+                }
+
+                .op-name {
+                    padding: 12px 15px;
+                    background: #f6f7fb;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    color: #334;
+                    font-weight: 600;
+                }
+
+                .op-target {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .btn-target {
+                    padding: 8px 12px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 700;
+                }
+
+                .btn-target:active {
+                    transform: translateY(1px);
+                }
+
+                .btn-op-wide {
+                    padding: 10px 18px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 700;
+                    grid-column: 2 / span 2;
+                }
+            </style>
+
+            <div class="ops-table">
+                <!-- Binary operations (span both target columns) -->
+                <div class="op-name">➕ Addition (A + B)</div>
+                <div class="op-target"><button class="btn-op-wide" onclick="operation('addition')">Compute</button>
+                </div>
+                <div></div>
+
+                <div class="op-name">➖ Subtraction (A - B)</div>
+                <div class="op-target"><button class="btn-op-wide" onclick="operation('subtraction')">Compute</button>
+                </div>
+                <div></div>
+
+                <div class="op-name">✖️ Multiplication (A * B)</div>
+                <div class="op-target"><button class="btn-op-wide"
+                        onclick="operation('multiplication')">Compute</button></div>
+                <div></div>
+
+                <!-- Single-matrix operations (two targets A and B) -->
+                <div class="op-name">🔄 Transpose</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('transpose','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('transpose','B')">B</button></div>
+
+                <div class="op-name">📊 RREF</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('rref','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('rref','B')">B</button></div>
+
+                <div class="op-name">📈 REF</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('ref','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('ref','B')">B</button></div>
+
+                <div class="op-name">📌 Determinant</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('determinant','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('determinant','B')">B</button>
+                </div>
+
+                <div class="op-name">✏️ Trace</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('trace','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('trace','B')">B</button></div>
+
+                <div class="op-name">📍 Rank</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('rank','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('rank','B')">B</button></div>
+
+                <div class="op-name">↩️ Inverse</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('inverse','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('inverse','B')">B</button></div>
+
+                <div class="op-name">🔗 Linear Independence</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('independence','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('independence','B')">B</button>
+                </div>
+
+                <div class="op-name">🎯 Basis</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('basis','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('basis','B')">B</button></div>
+
+                <div class="op-name">🌊 Eigenvalues</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('eigenvalues','B')">B</button>
+                </div>
+
+                <div class="op-name">🌈 Eigenvectors</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','B')">B</button>
+                </div>
+
+                <div class="op-name">⊥ Orthogonal/Orthonormal</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','B')">B</button></div>
+
+                <div class="op-name">🧮 Gram-Schmidt</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','B')">B</button>
+                </div>
+
+                <div class="op-name">🔷 Diagonalization</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','A')">A</button>
+                </div>
+                <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','B')">B</button>
+                </div>
+
+                <div class="op-name">🎲 SVD</div>
+                <div class="op-target"><button class="btn-target" onclick="operation('svd','A')">A</button></div>
+                <div class="op-target"><button class="btn-target" onclick="operation('svd','B')">B</button></div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="panel results-section">
+            <h2>Results</h2>
+            <div id="resultsContainer">
+                <p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar" style="display:none;"></div>
+    </div>
+
+    <script>
+        let matrixA = null;
+        let matrixB = null;
+
+        document.getElementById('inputMode').addEventListener('change', function () {
+            const manualInput = document.getElementById('manualInput');
+            const csvInput = document.getElementById('csvInput');
+            if (this.value === 'manual') {
+                manualInput.style.display = 'block';
+                csvInput.style.display = 'none';
+            } else {
+                manualInput.style.display = 'none';
+                csvInput.style.display = 'block';
+            }
+        });
+
+        document.getElementById('rowsA').addEventListener('change', generateMatrixInputA);
+        document.getElementById('colsA').addEventListener('change', generateMatrixInputA);
+        document.getElementById('rowsB').addEventListener('change', generateMatrixInputB);
+        document.getElementById('colsB').addEventListener('change', generateMatrixInputB);
+
+        function generateMatrixInputA() {
+            const rows = parseInt(document.getElementById('rowsA').value);
+            const cols = parseInt(document.getElementById('colsA').value);
+            const container = document.getElementById('matrixAInput');
+            container.innerHTML = '';
+
+            if (rows * cols > 400) {
+                container.innerHTML = `<p style="color: #666; font-style: italic;">Grid view disabled for large matrix (${rows}x${cols}). Data is stored in memory.</p>`;
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = '1';
+                    input.step = '0.01';
+                    input.id = `matA_${i}_${j}`;
+                    row.appendChild(input);
+                }
+                fragment.appendChild(row);
+            }
+            container.appendChild(fragment);
+        }
+
+        function generateMatrixInputB() {
+            const rows = parseInt(document.getElementById('rowsB').value);
+            const cols = parseInt(document.getElementById('colsB').value);
+            const container = document.getElementById('matrixBInput');
+            container.innerHTML = '';
+
+            if (rows * cols > 400) {
+                container.innerHTML = `<p style="color: #666; font-style: italic;">Grid view disabled for large matrix (${rows}x${cols}). Data is stored in memory.</p>`;
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = '1';
+                    input.step = '0.01';
+                    input.id = `matB_${i}_${j}`;
+                    row.appendChild(input);
+                }
+                fragment.appendChild(row);
+            }
+            container.appendChild(fragment);
+        }
+
+        function loadMatrixA(quiet = false) {
+            const rows = parseInt(document.getElementById('rowsA').value);
+            const cols = parseInt(document.getElementById('colsA').value);
+
+            // If the grid is displayed, read from it. Otherwise, assume matrixA is already populated (e.g. from CSV)
+            const grid = document.getElementById('matA_0_0');
+            if (grid) {
+                const newData = [];
+                for (let i = 0; i < rows; i++) {
+                    const row = [];
+                    for (let j = 0; j < cols; j++) {
+                        const el = document.getElementById(`matA_${i}_${j}`);
+                        const val = el ? parseFloat(el.value) : 0;
+                        row.push(isNaN(val) ? 0 : val);
+                    }
+                    newData.push(row);
+                }
+                matrixA = newData;
+            } else if (!matrixA) {
+                matrixA = Array(rows).fill().map(() => Array(cols).fill(0));
+            }
+            if (!quiet) showStatus('Matrix A loaded successfully', 'success');
+        }
+
+        function loadMatrixB(quiet = false) {
+            const rows = parseInt(document.getElementById('rowsB').value);
+            const cols = parseInt(document.getElementById('colsB').value);
+
+            const grid = document.getElementById('matB_0_0');
+            if (grid) {
+                const newData = [];
+                for (let i = 0; i < rows; i++) {
+                    const row = [];
+                    for (let j = 0; j < cols; j++) {
+                        const el = document.getElementById(`matB_${i}_${j}`);
+                        const val = el ? parseFloat(el.value) : 0;
+                        row.push(isNaN(val) ? 0 : val);
+                    }
+                    newData.push(row);
+                }
+                matrixB = newData;
+            } else if (!matrixB) {
+                matrixB = Array(rows).fill().map(() => Array(cols).fill(0));
+            }
+            if (!quiet) showStatus('Matrix B loaded successfully', 'success');
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusBar = document.getElementById('statusBar');
+            statusBar.textContent = message;
+            statusBar.className = 'status-bar ' + type;
+            statusBar.style.display = 'block';
+        }
+
+        function showResult(title, content) {
+            const container = document.getElementById('resultsContainer');
+            const result = document.createElement('div');
+            result.className = 'result-item';
+
+            let html = `<h3>${title}</h3>`;
+
+            // Check content type and render appropriately
+            if (typeof content === 'string') {
+                // Matrix result (string with rows separated by \n or \\n)
+                // Replace escaped \\n with real newline, then split
+                const normalizedContent = content.replace(/\\n/g, '\n');
+                const lines = normalizedContent.split('\n').filter(l => l.trim());
+                if (content.includes('Orthogonal:') || content.includes('Yes') || content.includes('No')) {
+                    // Boolean-like text result - Do NOT treat as matrix even if it has numbers
+                    html += `<div class="scalar-result"><span>${content.replace(/"/g, '')}</span></div>`;
+                } else if (lines.length > 0 && lines[0].trim().includes(' ')) {
+                    // It's a matrix - render as grid
+                    html += renderMatrixGrid(lines);
+                } else {
+                    html += `<pre>${content}</pre>`;
+                }
+            } else if (typeof content === 'object') {
+                if (content.orthogonal !== undefined && content.orthonormal !== undefined) {
+                    // Gram-Schmidt result (lists of vectors)
+                    html += '<div class="matrix-section">';
+                    html += '<h4>Orthogonal Basis</h4>';
+                    html += renderVectorList(content.orthogonal, 'u');
+                    html += '<h4>Orthonormal Basis</h4>';
+                    html += renderVectorList(content.orthonormal, 'e');
+                    html += '</div>';
+                } else if (content.value !== undefined) {
+                    // Scalar result (determinant, trace, rank)
+                    const val = content.value;
+                    if (typeof val === 'boolean') {
+                        // For Independence check
+                        const icon = val ? '✓' : '✗';
+                        const color = val ? '#2ecc71' : '#e74c3c';
+                        html += `<div class="scalar-result" style="background: linear-gradient(135deg, ${color}20, ${color}40); color: ${color}; border-color: ${color}"><span>${icon} ${val ? 'Yes' : 'No'}</span></div>`;
+                    } else {
+                        html += `<div class="scalar-result"><span>${Number.isInteger(val) ? val : val.toFixed(2)}</span></div>`;
+                    }
+                } else if (Array.isArray(content)) {
+                    // List result (eigenvalues, etc.)
+                    let prefix = 'λ';
+                    // Check if it's eigenvectors (list of lists)
+                    if (content.length > 0 && Array.isArray(content[0])) {
+                        prefix = 'v';
+                        html += '<div class="vector-list">';
+                        content.forEach((vec, i) => {
+                            html += `<div class="vector-item"><strong>${prefix}${i + 1}</strong> = [${vec.map(n => n.toFixed(2)).join(', ')}]</div>`;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="list-result">';
+                        content.forEach((item, i) => {
+                            if (Array.isArray(item)) {
+                                // Vector
+                                html += `<div class="list-item">${prefix}${i + 1} = [${item.join(', ')}]</div>`;
+                            } else {
+                                html += `<div class="list-item">${prefix}${i + 1} = ${item}</div>`;
+                            }
+                        });
+                        html += '</div>';
+                    }
+                } else {
+                    html += `<pre>${JSON.stringify(content, null, 2)}</pre>`;
+                }
+            }
+
+            result.innerHTML = html;
+            container.appendChild(result);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderVectorList(vectors, prefix = 'v') {
+            let html = '<div class="vector-list">';
+            vectors.forEach((vec, i) => {
+                html += `<div class="vector-item"><strong>${prefix}${i + 1}</strong> = [${vec.join(', ')}]</div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function renderMatrixGrid(lines) {
+            const rows = lines.map(line => line.trim().split(/\s+/));
+            if (rows.length === 0) return '';
+
+            const numRows = rows.length;
+            const numCols = rows[0].length;
+
+            // Performance optimization: For large output, use a simpler pre-formatted block
+            if (numRows * numCols > 225) { // Roughly 15x15
+                return `<pre style="max-height: 300px; overflow: auto; background: #f8f9fa; padding: 10px; border: 1px solid #ddd;">${lines.join('\n')}</pre>`;
+            }
+
+            let html = '<div class="matrix-result-grid">';
+            html += '<span class="matrix-bracket">[</span>';
+            html += `<div class="matrix-cells" style="grid-template-columns: repeat(${numCols}, 1fr);">`;
+
+            rows.forEach(row => {
+                row.forEach(val => {
+                    html += `<div class="matrix-cell">${val}</div>`;
+                });
+            });
+
+            html += '</div>';
+            html += '<span class="matrix-bracket">]</span>';
+            html += '</div>';
+            return html;
+        }
+
+        function clearResults() {
+            document.getElementById('resultsContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>';
+        }
+
+        function operation(op, target) {
+            // Auto-sync from UI before every operation
+            loadMatrixA(true);
+            loadMatrixB(true);
+
+            if (!matrixA) {
+                showStatus('Please load Matrix A first', 'error');
+                return;
+            }
+
+            clearResults();
+
+            // If target not explicitly provided, fall back to selector (legacy)
+            if (!target) {
+                var targetEl = document.getElementById('computeTarget');
+                target = targetEl ? targetEl.value : 'A';
+            }
+
+            // Send request to backend server
+            var apiToken = document.getElementById('apiToken') ? document.getElementById('apiToken').value.trim() : '';
+            var headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            if (apiToken) headers['X-API-Key'] = apiToken;
+
+            showStatus('Computing...', 'info');
+
+            const apiEndpoint = window.location.protocol === 'file:'
+                ? 'http://127.0.0.1:8080/api/operation'
+                : '/api/operation';
+
+            fetch(apiEndpoint, {
+                method: 'POST',
+                headers: headers,
+                mode: 'cors',
+                body: JSON.stringify({
+                    operation: op,
+                    target: target,
+                    matrixA: matrixA,
+                    matrixB: matrixB,
+                    token: apiToken
+                })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showResult(data.title, data.result);
+                        showStatus(data.message, 'success');
+                    } else {
+                        showStatus('Server Logic Error: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    showStatus('Backend Error: ' + error.message + '. Ensure server is running on port 8080.', 'error');
+                });
+        }
+
+        function handleCSVUpload(matrixChar) {
+            const fileInput = document.getElementById(`csvFile${matrixChar}`);
+            const file = fileInput.files[0];
+            if (!file) {
+                showStatus(`Please select a CSV file for Matrix ${matrixChar}`, 'error');
+                return;
+            }
+
+            showStatus('Parsing CSV...', 'info');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Use setTimeout to ensure the "Parsing" status shows up before freezing for a moment
+                setTimeout(() => {
+                    try {
+                        const text = e.target.result;
+                        const matrix = parseCSV(text);
+                        if (matrix.length === 0 || matrix[0].length === 0) {
+                            throw new Error('Invalid or empty CSV');
+                        }
+
+                        if (matrixChar === 'A') {
+                            matrixA = matrix;
+                            syncManualInput('A', matrix);
+                        } else {
+                            matrixB = matrix;
+                            syncManualInput('B', matrix);
+                        }
+                        showStatus(`Matrix ${matrixChar} loaded: ${matrix.length}x${matrix[0].length}`, 'success');
+                    } catch (err) {
+                        showStatus('Error parsing CSV: ' + err.message, 'error');
+                    }
+                }, 50);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(text) {
+            return text.trim().split(/\r?\n/).map(line => {
+                return line.split(',').map(val => {
+                    const num = parseFloat(val.trim());
+                    return isNaN(num) ? 0 : num;
+                });
+            }).filter(row => row.length > 0);
+        }
+
+        function syncManualInput(matrixChar, matrix) {
+            const rows = matrix.length;
+            const cols = matrix[0].length;
+            document.getElementById(`rows${matrixChar}`).value = rows;
+            document.getElementById(`cols${matrixChar}`).value = cols;
+
+            if (matrixChar === 'A') generateMatrixInputA();
+            else generateMatrixInputB();
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const input = document.getElementById(`mat${matrixChar}_${i}_${j}`);
+                    if (input) input.value = matrix[i][j];
+                }
+            }
+        }
+
+        // Initialize
+        generateMatrixInputA();
+        generateMatrixInputB();
+        loadMatrixA();
+        loadMatrixB();
+
+        // Add target selector so user can choose A or B for single-matrix ops
+        var targetContainer = document.createElement('div');
+        targetContainer.className = 'input-group';
+        targetContainer.innerHTML = '<label for="computeTarget">Compute Target</label>\n            <select id="computeTarget">\n                <option value="A">Matrix A</option>\n                <option value="B">Matrix B</option>\n            </select>';
+        document.querySelector('.input-section').appendChild(targetContainer);
+
+        // Add API token input for authenticated sharing
+        var tokenContainer = document.createElement('div');
+        tokenContainer.className = 'input-group';
+        tokenContainer.innerHTML = '<label for="apiToken">API Token (optional)</label>\n            <input id="apiToken" placeholder="Paste your API token here">';
+        document.querySelector('.input-section').appendChild(tokenContainer);
+    </script>
+</body>
+
+</html>
