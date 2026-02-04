@@ -450,13 +450,16 @@ std::string handleOperation(const std::string &operation,
       return createSuccessResponse(std::string("SVD (") + target + ")",
                                    matrixToJSON(S));
     } else if (operation == "solve_system") {
-      // For solve, we use A as coefficients and B as constants
-      Matrix result = globalMatrixA.solveSystem(globalMatrixB);
-      return createSuccessResponse("System Solution (RREF Augmented)",
+      Matrix other = (target == "B") ? globalMatrixA : globalMatrixB;
+      Matrix result = M.solveSystem(other);
+      return createSuccessResponse(std::string("System Solution (") + target +
+                                       "|other)",
                                    matrixToJSON(result));
     } else if (operation == "solve_cramer") {
-      Matrix result = globalMatrixA.solveCramer(globalMatrixB);
-      return createSuccessResponse("Cramer's Rule Solution",
+      Matrix other = (target == "B") ? globalMatrixA : globalMatrixB;
+      Matrix result = M.solveCramer(other);
+      return createSuccessResponse(std::string("Cramer's Rule Solution (") +
+                                       target + ")",
                                    matrixToJSON(result));
     } else {
       return createErrorResponse("Unknown operation: " + operation);

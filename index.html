@@ -713,43 +713,53 @@
 
         <!-- Solver Tab -->
         <div id="solver" class="tab-content">
-            <div class="panel" style="grid-column: 1 / span 2;">
+            <div class="panel" style="grid-column: 1 / span 3;">
                 <h2>System Solver (Mx = b)</h2>
-                <p style="margin-bottom: 20px; color: #666;">Solve systems using your loaded matrices as coefficients.
-                </p>
+                <p style="margin-bottom: 20px; color: #666;">Enter the coefficients and the constant vector to solve the
+                    system.</p>
 
-                <div class="solver-grid">
+                <div class="input-group"
+                    style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
                     <div>
-                        <div class="input-group">
-                            <label>Coefficient Matrix (M):</label>
-                            <select id="solverTarget" onchange="generateVectorBInput()" style="margin-bottom: 10px;">
-                                <option value="A">Matrix A</option>
-                                <option value="B">Matrix B</option>
-                            </select>
-                            <p id="solverInfo" style="font-size: 0.85em; color: #777;">Using current values from
-                                <strong>Matrix A</strong>.
-                            </p>
-                        </div>
-                        <div class="b-vector-input">
-                            <label><strong>Constant Vector (b):</strong></label>
-                            <p style="font-size: 0.8em; margin-bottom: 10px;">The size is automatically adjusted to the
-                                matrix rows.</p>
-                            <div id="vectorBInput" class="matrix-input"
-                                style="max-height: 200px; overflow-y: auto; padding-right: 5px;"></div>
-                        </div>
+                        <label>Matrix Rows:</label>
+                        <input type="number" id="solverRows" min="1" max="20" value="2" style="width: 80px;"
+                            onchange="updateSolverInput()">
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center;">
-                        <button class="btn-operation" onclick="solveSystem('solve_system')">Solve by RREF
-                            (General)</button>
-                        <button class="btn-operation" style="background: #764ba2;"
-                            onclick="solveSystem('solve_cramer')">Solve by Cramer's Rule (Square Only)</button>
+                    <div>
+                        <label>Matrix Columns:</label>
+                        <input type="number" id="solverCols" min="1" max="20" value="2" style="width: 80px;"
+                            onchange="updateSolverInput()">
+                    </div>
+                    <button class="btn-primary" onclick="syncFromCalculator()" style="margin-bottom: 0;">Sync from
+                        Calculator (A)</button>
+                    <button class="btn-primary" onclick="clearSolver()"
+                        style="background: #e74c3c; margin-bottom: 0;">Clear</button>
+                </div>
+
+                <div
+                    style="display: flex; gap: 40px; align-items: flex-start; overflow-x: auto; padding: 20px; background: #f9f9ff; border-radius: 12px; margin-bottom: 20px;">
+                    <div>
+                        <h4 style="margin-bottom: 15px; color: #444;">Co-efficient Matrix (M)</h4>
+                        <div id="solverMatrixGrid" class="matrix-input"></div>
+                    </div>
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 40px; font-size: 2em; color: #667eea; font-weight: bold; margin-top: 40px;">
+                        x =</div>
+                    <div>
+                        <h4 style="margin-bottom: 15px; color: #444;">Constant Vector (b)</h4>
+                        <div id="solverVectorGrid" class="matrix-input"></div>
                     </div>
                 </div>
-            </div>
-            <div class="panel results-section">
-                <h2>Solver Result</h2>
-                <div id="solverResults">
-                    <p style="color: #999; text-align: center; padding: 40px 0;">Solution will appear here...</p>
+
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button class="btn-operation" onclick="performSolve('solve_system')" style="flex: 1;">Solve by RREF
+                        (General)</button>
+                    <button class="btn-operation" onclick="performSolve('solve_cramer')"
+                        style="flex: 1; background: #764ba2;">Solve by Cramer's Rule (Square Only)</button>
+                </div>
+
+                <div id="solverResults" style="margin-top: 30px; border-top: 2px solid #667eea; padding-top: 20px;">
+                    <p style="color: #999; text-align: center; padding: 20px 0;">Solution will appear here...</p>
                 </div>
             </div>
         </div>
@@ -827,60 +837,113 @@
             }
         });
 
-        document.getElementById('rowsA').addEventListener('change', () => { generateMatrixInputA(); generateVectorBInput(); });
+        document.getElementById('rowsA').addEventListener('change', generateMatrixInputA);
         document.getElementById('colsA').addEventListener('change', generateMatrixInputA);
-        document.getElementById('rowsB').addEventListener('change', () => { generateMatrixInputB(); generateVectorBInput(); });
+        document.getElementById('rowsB').addEventListener('change', generateMatrixInputB);
         document.getElementById('colsB').addEventListener('change', generateMatrixInputB);
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            if (event) event.target.classList.add('active');
+
+            // Initial call for solver input generation when tab is switched
+            if (tabId === 'solver') updateSolverInput();
         }
 
-        function generateVectorBInput() {
-            const target = document.getElementById('solverTarget').value;
-            const rowsInput = document.getElementById(`rows${target}`);
-            const rows = rowsInput ? parseInt(rowsInput.value) : 2;
+        function updateSolverInput() {
+            const rows = parseInt(document.getElementById('solverRows').value);
+            const cols = parseInt(document.getElementById('solverCols').value);
+            const matContainer = document.getElementById('solverMatrixGrid');
+            const vecContainer = document.getElementById('solverVectorGrid');
 
-            document.getElementById('solverInfo').innerHTML = `Using current values from <strong>Matrix ${target}</strong>.`;
+            matContainer.innerHTML = '';
+            vecContainer.innerHTML = '';
 
-            const container = document.getElementById('vectorBInput');
-            container.innerHTML = '';
-
-            const fragment = document.createDocumentFragment();
+            // Matrix M
+            const matFragment = document.createDocumentFragment();
             for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = '1';
+                    input.id = `solverM_${i}_${j}`;
+                    input.style.width = '60px';
+                    row.appendChild(input);
+                }
+                matFragment.appendChild(row);
+            }
+            matContainer.appendChild(matFragment);
+
+            // Vector b
+            const vecFragment = document.createDocumentFragment();
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.value = '0';
-                input.id = `vecB_${i}`;
-                input.className = 'matrix-input-field'; // Added for consistent styling
-                input.style.width = '100%';
-                input.style.marginBottom = '5px';
-                input.style.padding = '8px';
-                input.style.textAlign = 'center';
-                fragment.appendChild(input);
+                input.id = `solverB_${i}`;
+                input.style.width = '60px';
+                row.appendChild(input);
+                vecFragment.appendChild(row);
             }
-            container.appendChild(fragment);
+            vecContainer.appendChild(vecFragment);
         }
 
-        function solveSystem(op) {
-            const target = document.getElementById('solverTarget').value;
-            if (target === 'A') loadMatrixA(true);
-            else loadMatrixB(true);
+        function performSolve(op) {
+            const rows = parseInt(document.getElementById('solverRows').value);
+            const cols = parseInt(document.getElementById('solverCols').value);
 
-            const rowsInput = document.getElementById(`rows${target}`);
-            const rows = rowsInput ? parseInt(rowsInput.value) : 2;
-
-            const vecB = [];
+            const mData = [];
             for (let i = 0; i < rows; i++) {
-                const val = parseFloat(document.getElementById(`vecB_${i}`).value);
-                vecB.push([isNaN(val) ? 0 : val]);
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    const el = document.getElementById(`solverM_${i}_${j}`);
+                    const val = el ? parseFloat(el.value) : 0;
+                    row.push(isNaN(val) ? 0 : val);
+                }
+                mData.push(row);
             }
-            matrixB = vecB; // Pass vector as matrixB
 
-            operation(op, target, 'solverResults');
+            const bData = [];
+            for (let i = 0; i < rows; i++) {
+                const el = document.getElementById(`solverB_${i}`);
+                const val = el ? parseFloat(el.value) : 0;
+                bData.push([isNaN(val) ? 0 : val]);
+            }
+
+            matrixA = mData;
+            matrixB = bData;
+
+            operation(op, 'A', 'solverResults', true);
+        }
+
+        function syncFromCalculator() {
+            loadMatrixA(true);
+            if (!matrixA) return;
+
+            const rows = matrixA.length;
+            const cols = matrixA[0].length;
+
+            document.getElementById('solverRows').value = rows;
+            document.getElementById('solverCols').value = cols;
+
+            updateSolverInput();
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    document.getElementById(`solverM_${i}_${j}`).value = matrixA[i][j];
+                }
+            }
+        }
+
+        function clearSolver() {
+            const inputs = document.querySelectorAll('#solverMatrixGrid input[type="number"], #solverVectorGrid input[type="number"]');
+            inputs.forEach(input => input.value = 0);
         }
 
         function generateMatrixInputA() {
@@ -1109,10 +1172,12 @@
             document.getElementById('resultsContainer').innerHTML = '<p style="color: #999; text-align: center; padding: 40px 0;">Results will appear here...</p>';
         }
 
-        function operation(op, target, resultContainerId = 'resultsContainer') {
-            // Auto-sync from UI before every operation
-            loadMatrixA(true);
-            if (resultContainerId === 'resultsContainer') loadMatrixB(true);
+        function operation(op, target, resultContainerId = 'resultsContainer', skipSync = false) {
+            // Auto-sync from UI before every operation unless skipped
+            if (!skipSync) {
+                loadMatrixA(true);
+                if (resultContainerId === 'resultsContainer') loadMatrixB(true);
+            }
 
             if (!matrixA) {
                 showStatus('Please load Matrix A first', 'error');
@@ -1237,7 +1302,7 @@
         // Initialize
         generateMatrixInputA();
         generateMatrixInputB();
-        generateVectorBInput();
+        updateSolverInput(); // Replacing generateVectorBInput
         loadMatrixA(true);
         loadMatrixB(true);
 
