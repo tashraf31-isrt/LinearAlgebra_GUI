@@ -400,6 +400,7 @@
             border: 2px dashed #667eea;
         }
 
+        /* Tab Settings */
         @media (max-width: 1200px) {
             .tab-content {
                 grid-template-columns: 1fr 1fr;
@@ -408,6 +409,56 @@
             .solver-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Operations Table Restoration */
+        .ops-table {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            gap: 10px;
+        }
+
+        .op-name {
+            padding: 12px 15px;
+            background: #f6f7fb;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            color: #334;
+            font-weight: 600;
+        }
+
+        .op-target {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-target {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        .btn-target:active {
+            transform: translateY(1px);
+        }
+
+        .btn-op-wide {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            grid-column: 2 / span 2;
+            width: 100%;
         }
     </style>
 </head>
@@ -594,37 +645,52 @@
         <!-- Formulas Tab -->
         <div id="formulas" class="tab-content" style="grid-template-columns: 1fr 1fr;">
             <div class="panel">
-                <h2>Matrix Properties</h2>
+                <h2>Matrix & Determinant Properties</h2>
                 <div class="formula-card">
-                    <h4>Determinant (det A)</h4>
-                    <p>A scalar value that can be computed from the elements of a square matrix. Identifies if a matrix
-                        is invertible.</p>
-                    <div class="math-block">det(A) ≠ 0 ⟺ Invertible</div>
+                    <h4>Multiplicative Property</h4>
+                    <p>The determinant of a product is the product of the determinants.</p>
+                    <div class="math-block">det(AB) = det(A)det(B)</div>
                 </div>
                 <div class="formula-card">
-                    <h4>Inverse Matrix (A⁻¹)</h4>
-                    <p>If A is square and det(A) ≠ 0, there exists a matrix A⁻¹ such that:</p>
-                    <div class="math-block">A · A⁻¹ = I</div>
+                    <h4>Scalar Multiplication</h4>
+                    <p>For an n x n matrix and any scalar k:</p>
+                    <div class="math-block">det(kA) = kⁿ det(A)</div>
                 </div>
                 <div class="formula-card">
-                    <h4>Eigenvalues (λ)</h4>
-                    <p>Scalars that satisfy the characteristic equation:</p>
-                    <div class="math-block">det(A - λI) = 0</div>
+                    <h4>Inverse Properties</h4>
+                    <div class="math-block">det(A⁻¹) = 1 / det(A)</div>
+                    <div class="math-block">(AB)⁻¹ = B⁻¹A⁻¹</div>
+                    <div class="math-block">(Aᵀ)⁻¹ = (A⁻¹)ᵀ</div>
+                </div>
+                <div class="formula-card">
+                    <h4>Trace and Eigenvalues</h4>
+                    <p>The trace is the sum of eigenvalues, and the determinant is the product.</p>
+                    <div class="math-block">tr(A) = Σ λᵢ</div>
+                    <div class="math-block">det(A) = Π λᵢ</div>
                 </div>
             </div>
+
             <div class="panel">
-                <h2>Solving Systems</h2>
+                <h2>Vector Spaces & Orthogonality</h2>
                 <div class="formula-card" style="border-left-color: #667eea;">
-                    <h4>Cramer's Rule</h4>
-                    <p>For a square system Ax = b, the i-th component of x is:</p>
-                    <div class="math-block">xᵢ = det(Aᵢ) / det(A)</div>
-                    <small>Where Aᵢ is formed by replacing the i-th column of A with b.</small>
+                    <h4>Vector Space Axioms (Summary)</h4>
+                    <p>A set W is a vector space if it's closed under addition (u+v ∈ W) and scalar multiplication
+                        (ku ∈ W), and satisfies commutativity, associativity, and distributivity.</p>
                 </div>
                 <div class="formula-card" style="border-left-color: #667eea;">
-                    <h4>Reduced Row Echelon Form (RREF)</h4>
-                    <p>A systematic way to solve Ax = b by applying elementary row operations to the augmented matrix
-                        [A|b].</p>
-                    <div class="math-block">[A | b] ⟶ [I | x]</div>
+                    <h4>Dot Product & Projection</h4>
+                    <div class="math-block">u · v = ||u|| ||v|| cos θ</div>
+                    <div class="math-block">proj_w v = [ (v · w) / ||w||² ] w</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Cauchy-Schwarz Inequality</h4>
+                    <div class="math-block">|u · v| ≤ ||u|| ||v||</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>System Solving (Ax=b)</h4>
+                    <div class="math-block">x = A⁻¹b (if det(A)≠0)</div>
+                    <p><strong>Cramer's Rule:</strong> xᵢ = det(Aᵢ) / det(A)</p>
+                    <p><strong>RREF:</strong> Augmented matrix [A|b] ⟶ [I|x]</p>
                 </div>
             </div>
         </div>
