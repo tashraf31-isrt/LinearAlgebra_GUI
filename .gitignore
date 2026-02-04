@@ -20,6 +20,12 @@ test_100x100.csv
 test_payload.json
 test.json
 huge_matrix.csv
+*.csv
+
+# UI/Build artifacts
+server.i
+*.log
+*.exe
 
 # VS Code
 .vscode/
