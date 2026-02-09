@@ -658,7 +658,7 @@ int main() {
   }
   std::cout << "[OK] Socket created\n\n";
 
-  int port = 8080;
+  int port = 8081;
   const char *envPort = std::getenv("PORT");
   if (envPort) {
     try {
@@ -685,14 +685,15 @@ int main() {
 
   if (bind(serverSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) ==
       SOCKET_ERROR) {
-    std::cerr << "[ERROR] Bind failed. Port 8080 may already be in use\n";
+    std::cerr << "[ERROR] Bind failed. Port " << port
+              << " may already be in use\n";
     closesocket(serverSocket);
 #ifdef _WIN32
     WSACleanup();
 #endif
     return 1;
   }
-  std::cout << "[OK] Socket bound to 0.0.0.0:8080\n\n";
+  std::cout << "[OK] Socket bound to 0.0.0.0:" << port << "\n\n";
 
   std::cout << "[*] Starting to listen...\n";
   if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
@@ -726,7 +727,7 @@ int main() {
   std::cout << "============================================\n";
   std::cout << "SERVER RUNNING SUCCESSFULLY!\n";
   std::cout << "============================================\n";
-  std::cout << "[+] Server Address: http://127.0.0.1:8080\n";
+  std::cout << "[+] Server Address: http://127.0.0.1:" << port << "\n";
   std::cout << "[+] Status: Ready for connections\n";
   std::cout << "============================================\n\n";
 

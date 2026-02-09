@@ -398,6 +398,15 @@
             background: #f0f4ff;
             border-radius: 8px;
             border: 2px dashed #667eea;
+            overflow-x: auto;
+        }
+
+        .solver-scroll-container {
+            overflow-x: auto;
+            max-width: 100%;
+            padding-bottom: 10px;
+            display: flex;
+            gap: 20px;
         }
 
         /* Tab Settings */
@@ -565,6 +574,69 @@
                 grid-column: 1 / -1;
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+            position: relative;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .modal-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
     </style>
 </head>
 
@@ -699,6 +771,49 @@
                     <div class="op-name">🎲 SVD</div>
                     <div class="op-target"><button class="btn-target" onclick="operation('svd','A')">A</button></div>
                     <div class="op-target"><button class="btn-target" onclick="operation('svd','B')">B</button></div>
+
+                    <!-- Extended Operations -->
+                    <div class="op-name">🔍 Trace</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('trace','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('trace','B')">B</button></div>
+
+                    <div class="op-name">📉 REF</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('ref','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('ref','B')">B</button></div>
+
+                    <div class="op-name">📏 Basis</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('basis','A')">A</button></div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('basis','B')">B</button></div>
+
+                    <div class="op-name">🔗 Independence</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('independence','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('independence','B')">B</button>
+                    </div>
+
+                    <div class="op-name">📐 Orthogonality</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('orthogonal','B')">B</button>
+                    </div>
+
+                    <div class="op-name">🔨 Gram-Schmidt</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('gramschmidt','B')">B</button>
+                    </div>
+
+                    <div class="op-name">↗️ Eigenvectors</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('eigenvectors','B')">B</button>
+                    </div>
+
+                    <div class="op-name">💠 Diagonalization</div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','A')">A</button>
+                    </div>
+                    <div class="op-target"><button class="btn-target" onclick="operation('diagonalize','B')">B</button>
+                    </div>
                 </div>
             </div>
 
@@ -736,16 +851,16 @@
                         style="background: #e74c3c; margin-bottom: 0;">Clear</button>
                 </div>
 
-                <div
-                    style="display: flex; gap: 40px; align-items: flex-start; overflow-x: auto; padding: 20px; background: #f9f9ff; border-radius: 12px; margin-bottom: 20px;">
-                    <div>
+                <div class="solver-scroll-container"
+                    style="background: #f9f9ff; border-radius: 12px; margin-bottom: 20px; padding: 20px;">
+                    <div style="flex-shrink: 0;">
                         <h4 style="margin-bottom: 15px; color: #444;">Co-efficient Matrix (M)</h4>
                         <div id="solverMatrixGrid" class="matrix-input"></div>
                     </div>
                     <div
-                        style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 40px; font-size: 2em; color: #667eea; font-weight: bold; margin-top: 40px;">
+                        style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding-top: 40px; font-size: 2em; color: #667eea; font-weight: bold; margin-top: 40px;">
                         x =</div>
-                    <div>
+                    <div style="flex-shrink: 0;">
                         <h4 style="margin-bottom: 15px; color: #444;">Constant Vector (b)</h4>
                         <div id="solverVectorGrid" class="matrix-input"></div>
                     </div>
@@ -814,11 +929,61 @@
                     <p><strong>Cramer's Rule:</strong> xᵢ = det(Aᵢ) / det(A)</p>
                     <p><strong>RREF:</strong> Augmented matrix [A|b] ⟶ [I|x]</p>
                 </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Rank & Nullity</h4>
+                    <p>Rank is the dimension of the column space. Nullity is the dimension of the null space.</p>
+                    <div class="math-block">rank(A) + nullity(A) = n</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Eigenvalues & Eigenvectors</h4>
+                    <p>For a square matrix A, λ is an eigenvalue and v is an eigenvector if:</p>
+                    <div class="math-block">Av = λv</div>
+                    <p>To find eigenvalues, listen solve:</p>
+                    <div class="math-block">det(A - λI) = 0</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Diagonalization</h4>
+                    <p>A matrix A is diagonalizable if there exists an invertible matrix P and a diagonal matrix D such
+                        that:</p>
+                    <div class="math-block">A = PDP⁻¹</div>
+                    <p>where columns of P are eigenvectors and diagonal entries of D are eigenvalues.</p>
+                </div>
+                <!-- Extended Formulas -->
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Vector Projections</h4>
+                    <p>Projection of v onto u:</p>
+                    <div class="math-block">proj_u v = ((v · u) / (u · u)) u</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Least Squares Solution</h4>
+                    <p>For inconsistent system Ax=b, find x that minimizes ||Ax-b||:</p>
+                    <div class="math-block">AᵀAx = Aᵀb</div>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>LU Decomposition</h4>
+                    <p>Factor A into Lower (L) and Upper (U) triangular matrices:</p>
+                    <div class="math-block">A = LU</div>
+                    <p>Useful for solving systems efficiently.</p>
+                </div>
+                <div class="formula-card" style="border-left-color: #667eea;">
+                    <h4>Positive Definiteness</h4>
+                    <p>A symmetric matrix A is positive definite if xᵀAx > 0 for all nonzero x.</p>
+                    <p><strong>Test:</strong> All eigenvalues are positive, or all leading principal minors are
+                        positive.</p>
+                </div>
             </div>
         </div>
 
-        <!-- Status Bar -->
-        <div class="status-bar" id="statusBar" style="display:none;"></div>
+        <!-- Status Modal -->
+        <div id="statusModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <span id="modalIcon" class="modal-icon"></span>
+                <h3 id="modalTitle" style="margin-bottom: 10px; color: #333;">Notification</h3>
+                <p id="modalMessage" style="color: #666; font-size: 1.1em;"></p>
+                <button class="btn-primary" style="margin-top: 20px; width: 100px;" onclick="closeModal()">OK</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -871,7 +1036,8 @@
                     input.type = 'number';
                     input.value = '1';
                     input.id = `solverM_${i}_${j}`;
-                    input.style.width = '60px';
+                    input.className = 'matrix-cell'; // Use Calculator style
+                    input.style.width = '60px'; // Keep width constraint
                     row.appendChild(input);
                 }
                 matFragment.appendChild(row);
@@ -887,7 +1053,8 @@
                 input.type = 'number';
                 input.value = '0';
                 input.id = `solverB_${i}`;
-                input.style.width = '60px';
+                input.className = 'matrix-cell'; // Use Calculator style
+                input.style.width = '60px'; // Keep width constraint
                 row.appendChild(input);
                 vecFragment.appendChild(row);
             }
@@ -1049,11 +1216,40 @@
             if (!quiet) showStatus('Matrix B loaded successfully', 'success');
         }
 
+        function closeModal() {
+            document.getElementById('statusModal').style.display = "none";
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('statusModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
         function showStatus(message, type = 'info') {
-            const statusBar = document.getElementById('statusBar');
-            statusBar.textContent = message;
-            statusBar.className = 'status-bar ' + type;
-            statusBar.style.display = 'block';
+            const modal = document.getElementById('statusModal');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const msg = document.getElementById('modalMessage');
+
+            modal.style.display = "block";
+            msg.textContent = message;
+
+            if (type === 'success') {
+                icon.textContent = "✅";
+                title.textContent = "Success";
+                title.style.color = "#28a745";
+            } else if (type === 'error') {
+                icon.textContent = "❌";
+                title.textContent = "Error";
+                title.style.color = "#dc3545";
+            } else {
+                icon.textContent = "ℹ️";
+                title.textContent = "Info";
+                title.style.color = "#667eea";
+            }
         }
 
         function showResult(title, content, containerId = 'resultsContainer') {
@@ -1204,7 +1400,7 @@
             showStatus('Computing...', 'info');
 
             const apiEndpoint = window.location.protocol === 'file:'
-                ? 'http://127.0.0.1:8080/api/operation'
+                ? 'http://127.0.0.1:8081/api/operation'
                 : '/api/operation';
 
             fetch(apiEndpoint, {
